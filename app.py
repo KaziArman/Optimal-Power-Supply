@@ -19,8 +19,9 @@ except Exception:
     _HAS_ADJUST = False
 
 st.set_page_config(page_title="DC Power Flow (Pyomo)", layout="wide")
+
 st.markdown(
-    "<h1 style='text-align: center;'>DC Power Flow Optimization (Pyomo)</h1>",
+    "<h1 style='text-align: center;'>DC Power Flow Optimization</h1>",
     unsafe_allow_html=True
 )
 
@@ -32,6 +33,7 @@ with col2:
         width=1000                 # set a fixed width in pixels
         # use_container_width=True  # alternatively stretch to fit column width
     )
+
 st.caption("Edit the data and click **Solve**. The compact diagram shows Pg*, Pl*, θ and the Optimal Cost.")
 
 # -------------------------------------------------------------------
@@ -89,7 +91,7 @@ with c4:
 candidate_slacks = sorted(buses["bus"].unique()) if "bus" in buses.columns else []
 slack_bus = st.selectbox("Slack bus (external id)", candidate_slacks, index=0 if candidate_slacks else None)
 
-solver_choice = st.selectbox("Solver", ["HiGHS (recommended)", "GLPK (local only)"], index=0)
+solver_choice = st.selectbox("Solver", ["HiGHS (Recommended)", "GLPK (Local Only)",], index=0)
 
 # Toggle: show Pg* in blue to stand out (optional)
 show_pg_star_blue = st.toggle("Highlight Pg* in blue", value=True)
@@ -363,7 +365,6 @@ st.markdown(
     '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/573cf41f21b63833a8401010d8d7603f4839f95d/powerSystem.xlsx" target="_blank">Data File</a>',
     unsafe_allow_html=True
 )
-
 
 if solve_btn:
     try:

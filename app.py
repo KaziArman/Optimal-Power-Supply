@@ -18,8 +18,17 @@ try:
 except Exception:
     _HAS_ADJUST = False
 
-st.set_page_config(page_title="DC Power Flow (Pyomo)", layout="wide")
-st.title("DC Power Flow Optimization (Pyomo)")
+st.set_page_config(page_title="DC Power Flow", layout="wide")
+st.title("DC Power Flow Optimization")
+col1, col2, col3 = st.columns([1,2,1])   # middle column is wider
+with col2:
+    st.image(
+        "formulation.png",   # path to your image file
+        caption="Optimization Model Formulation",
+        width=1000                 # set a fixed width in pixels
+        # use_container_width=True  # alternatively stretch to fit column width
+    )
+
 st.caption("Edit the data and click **Solve**. The compact diagram shows Pg*, Pl*, θ and the Optimal Cost.")
 
 # -------------------------------------------------------------------
@@ -77,7 +86,7 @@ with c4:
 candidate_slacks = sorted(buses["bus"].unique()) if "bus" in buses.columns else []
 slack_bus = st.selectbox("Slack bus (external id)", candidate_slacks, index=0 if candidate_slacks else None)
 
-solver_choice = st.selectbox("Solver", ["HiGHS (recommended)", "GLPK (local only)"], index=0)
+solver_choice = st.selectbox("Solver", ["GLPK","HiGHS"], index=0)
 
 # Toggle: show Pg* in blue to stand out (optional)
 show_pg_star_blue = st.toggle("Highlight Pg* in blue", value=True)
@@ -332,6 +341,14 @@ def draw_diagram(buses, generations, loads, lines, Pg_sol, Pl_sol, theta_sol, ob
 # Solve
 # ---------------------------
 solve_btn = st.button("Solve")
+st.markdown(
+    '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/a8861ea5741cd8181dbd93f089b6dc8766ffd720/power%20flow%20solution%20gurobipy.py" target="_blank">**Gurobipy Code**</a>'
+    ' '
+    '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/a8861ea5741cd8181dbd93f089b6dc8766ffd720/power%20flow%20solution%20pyomo.py" target="_blank">**Pyomo Code**</a>'
+    ' '
+    '<a href="https://en.wikipedia.org/wiki/Optimal_power_flow" target="_blank">Data File</a>',
+    unsafe_allow_html=True
+)
 
 if solve_btn:
     try:

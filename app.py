@@ -19,7 +19,19 @@ except Exception:
     _HAS_ADJUST = False
 
 st.set_page_config(page_title="DC Power Flow (Pyomo)", layout="wide")
-st.title("DC Power Flow Optimization (Pyomo)")
+st.markdown(
+    "<h1 style='text-align: center;'>DC Power Flow Optimization (Pyomo)</h1>",
+    unsafe_allow_html=True
+)
+
+col1, col2, col3 = st.columns([1,2,1])   # middle column is wider
+with col2:
+    st.image(
+        "formulation.png",   # path to your image file
+        caption="Optimization Model Formulation",
+        width=1000                 # set a fixed width in pixels
+        # use_container_width=True  # alternatively stretch to fit column width
+    )
 st.caption("Edit the data and click **Solve**. The compact diagram shows Pg*, Pl*, θ and the Optimal Cost.")
 
 # -------------------------------------------------------------------
@@ -182,11 +194,22 @@ def build_and_solve(buses, generations, loads, lines, slack_bus_ext, solver_choi
     if solver_choice.startswith("GLPK"):
         opt = pyo.SolverFactory("glpk")
         res = opt.solve(model, tee=False)
-        status = str(res.solver.termination_condition)
     else:
+        # Pyomo APPsi HiGHS
+        from pyomo.contrib.appsi.solvers import Highs
         opt = Highs()
+        # Useful config flags
+        opt.config.stream_solver = False
+        opt.config.load_solution = True
         res = opt.solve(model)
-        status = str(res.solver.termination_condition)
+    
+    # Unified status extraction
+    if hasattr(res, "termination_condition"):
+        status = str(res.termination_condition)  # APPsi
+    elif hasattr(res, "solver") and hasattr(res.solver, "termination_condition"):
+        status = str(res.solver.termination_condition)  # Legacy
+    else:
+        status = "unknown"
 
     # Results (external ids)
     obj = float(pyo.value(model.obj))
@@ -332,6 +355,15 @@ def draw_diagram(buses, generations, loads, lines, Pg_sol, Pl_sol, theta_sol, ob
 # Solve
 # ---------------------------
 solve_btn = st.button("Solve")
+st.markdown(
+    '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/a8861ea5741cd8181dbd93f089b6dc8766ffd720/power%20flow%20solution%20gurobipy.py" target="_blank">**Gurobipy Code**</a>'
+    '     '
+    '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/a8861ea5741cd8181dbd93f089b6dc8766ffd720/power%20flow%20solution%20pyomo.py" target="_blank">**Pyomo Code**</a>'
+    '    '
+    '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/573cf41f21b63833a8401010d8d7603f4839f95d/powerSystem.xlsx" target="_blank">Data File</a>',
+    unsafe_allow_html=True
+)
+
 
 if solve_btn:
     try:

@@ -19,7 +19,11 @@ except Exception:
     _HAS_ADJUST = False
 
 st.set_page_config(page_title="DC Power Flow", layout="wide")
-st.title("DC Power Flow Optimization")
+st.markdown(
+    "<h1 style='text-align: center;'>DC Power Flow Optimization (Pyomo)</h1>",
+    unsafe_allow_html=True
+)
+
 col1, col2, col3 = st.columns([1,2,1])   # middle column is wider
 with col2:
     st.image(
@@ -343,10 +347,10 @@ def draw_diagram(buses, generations, loads, lines, Pg_sol, Pl_sol, theta_sol, ob
 solve_btn = st.button("Solve")
 st.markdown(
     '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/a8861ea5741cd8181dbd93f089b6dc8766ffd720/power%20flow%20solution%20gurobipy.py" target="_blank">**Gurobipy Code**</a>'
-    ' '
+    '     '
     '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/a8861ea5741cd8181dbd93f089b6dc8766ffd720/power%20flow%20solution%20pyomo.py" target="_blank">**Pyomo Code**</a>'
-    ' '
-    '<a href="https://en.wikipedia.org/wiki/Optimal_power_flow" target="_blank">Data File</a>',
+    '    '
+    '<a href="https://github.com/KaziArman/Optimal-Power-Supply/blob/573cf41f21b63833a8401010d8d7603f4839f95d/powerSystem.xlsx" target="_blank">Data File</a>',
     unsafe_allow_html=True
 )
 

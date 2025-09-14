@@ -20,19 +20,77 @@ except Exception:
 
 st.set_page_config(page_title="DC Power Flow (Pyomo)", layout="wide")
 
+
+
 st.markdown(
     "<h1 style='text-align: center;'>DC Power Flow Optimization</h1>",
     unsafe_allow_html=True
 )
 
-col1, col2, col3 = st.columns([1,2,1])   # middle column is wider
+col1, col2, col3 = st.columns([1, 2, 2])  # wider left column
+
+with col1:
+    st.subheader("Sets")
+    st.markdown(r"""
+    - $\mathcal{N}$: Set of buses (nodes), index $n$.
+    - $\mathcal{G}$: Set of generators, index $g$.
+    - $\mathcal{L}$: Set of transmission lines, index $\ell$.
+    - $\mathcal{G}(n) \subseteq \mathcal{G}$: Generators connected at bus $n$.
+    - $\Omega^L_{n=s} \subseteq \mathcal{L}$: Lines whose sending end is bus $n$.
+    - $\Omega^L_{n=r} \subseteq \mathcal{L}$: Lines whose receiving end is bus $n$.
+    - $s(\ell),\; r(\ell)$: Sending and receiving buses of line $\ell$.
+    """)
+
+    st.subheader("Decision variables")
+    st.markdown(r"""
+    - $P_g$: Real power output of generator $g$ [kW/MW].
+    - $P_\ell$: Real power flow on line $\ell$ (positive $s(\ell)\to r(\ell)$) [kW/MW].
+    - $\theta_n$: Voltage angle at bus $n$ [rad].
+    """)
+
 with col2:
-    st.image(
-        "formulation.PNG",   # path to your image file
-        caption="Optimization Model Formulation",
-        width=1000                 # set a fixed width in pixels
-        # use_container_width=True  # alternatively stretch to fit column width
-    )
+    st.subheader("Mathematical formulation")
+    st.markdown(r"""
+    $$
+    \begin{aligned}
+    \min_{\{P_g,\,P_{\ell},\,\theta_n\}}
+    \quad & \sum_{g\in\mathcal{G}} C_g\,P_g \\[6pt]
+    \text{s.t.}\qquad
+    & \sum_{g\in\mathcal{G}(n)} P_g
+     - \sum_{\ell\in\Omega^L_{n=s}} P_{\ell}
+     + \sum_{\ell\in\Omega^L_{n=r}} P_{\ell}
+     = P_d(n), && \forall n\in\mathcal{N} \\[6pt]
+    & P_{\ell} = B_{\ell}\bigl(\theta_{s(\ell)}-\theta_{r(\ell)}\bigr), && \forall \ell\in\mathcal{L} \\[6pt]
+    & 0 \le P_g \le P_g^{\max}, && \forall g\in\mathcal{G} \\[6pt]
+    & -P_{\ell}^{\max} \le P_{\ell} \le P_{\ell}^{\max}, && \forall \ell\in\mathcal{L} \\[6pt]
+    & -\pi \le \theta_n \le \pi, && \forall n\in\mathcal{N} \\[6pt]
+    & \theta_{n_0} = 0 \quad \text{(slack/reference angle).}
+    \end{aligned}
+    $$
+    """, unsafe_allow_html=True)
+
+
+with col3:
+    st.subheader("Parameters (given)")
+    st.markdown(r"""
+    - $C_g$: Marginal generation cost [\$/kWh or \$/MWh].
+    - $P_d(n)$: Demand at bus $n$ [kW/MW].
+    - $P_g^{\max}$: Capacity of generator $g$ [kW/MW].
+    - $P_\ell^{\max}$: Thermal/contract limit of line $\ell$ [kW/MW].
+    - $B_\ell$: (DC) line susceptance of line $\ell$ [pu or $1/x_\ell$].
+    - $n_0$: Slack (reference) bus in $\mathcal{N}$.
+    """)
+    
+    st.subheader("Interpretation")
+    st.markdown(r"""
+    - **(Objective)** minimizes total generation cost.  
+    - **(Balance)** enforces nodal power balance.  
+    - **(Flow)** is the DC line–flow relation.  
+    - **(Gen limits)**: $0 \le P_g \le P_g^{\max}$.  
+    - **(Line limits)**: $|P_\ell| \le P_\ell^{\max}$.  
+    - **(Angles + slack)**: bounds on $\theta_n$, with $\theta_{n_0}=0$.  
+    """)
+
 
 st.caption("Edit the data and click **Solve**. The compact diagram shows Pg*, Pl*, θ and the Optimal Cost.")
 

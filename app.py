@@ -28,7 +28,7 @@ st.markdown(
 col1, col2, col3 = st.columns([1,2,1])   # middle column is wider
 with col2:
     st.image(
-        "formulation.png",   # path to your image file
+        "formulation.PNG",   # path to your image file
         caption="Optimization Model Formulation",
         width=1000                 # set a fixed width in pixels
         # use_container_width=True  # alternatively stretch to fit column width
